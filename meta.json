@@ -1,0 +1,13 @@
+{
+  "module_id": "mcvella:florence-2",
+  "visibility": "public",
+  "url": "https://github.com/mcvella/viam-florence-2",
+  "description": "A Viam modular computer vision service for Florence-2 inference",
+  "models": [
+    {
+      "api": "rdk:service:vision",
+      "model": "mcvella:vision:florence-2"
+    }
+  ],
+  "entrypoint": "run.sh"
+}
