@@ -1,0 +1,6 @@
+viam-sdk
+transformers
+pillow
+torch
+timm
+einops
