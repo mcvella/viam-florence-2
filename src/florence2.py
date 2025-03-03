@@ -56,14 +56,6 @@ class florence2(Vision, Reconfigurable):
     def validate(cls, config: ComponentConfig):
         return
 
-    def fixed_get_imports(self, filename: str | os.PathLike) -> list[str]:
-        """Work around for https://huggingface.co/microsoft/phi-1_5/discussions/72."""
-        if not str(filename).endswith("/modeling_florence2.py"):
-            return get_imports(filename)
-        imports = get_imports(filename)
-        imports.remove("flash_attn")
-        return imports
-
     # Handles attribute reconfiguration
     def reconfigure(self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]):
         self.DEPS = dependencies
@@ -76,11 +68,9 @@ class florence2(Vision, Reconfigurable):
             subprocess.run('pip install flash-attn --no-build-isolation', env={'FLASH_ATTENTION_SKIP_CUDA_BUILD': "TRUE"}, shell=True)
 
        
-        if device == "cuda":
-            self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
-        else:
-            #with patch("transformers.dynamic_module_utils.get_imports", self.fixed_get_imports):
-            self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True)
+
+        if device != "cuda":
             self.model.to(device)
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
 
