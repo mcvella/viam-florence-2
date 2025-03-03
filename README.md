@@ -2,7 +2,7 @@
 
 This module implements the [rdk vision API](https://github.com/rdk/vision-api) in a mcvella:vision:florence-2 model.
 
-This model leverages the [Florence-2 computer vision model](https://huggingface.co/microsoft/Florence-2-large) to allow for object detection, grounding detection, and classification(captioning).
+This model leverages the [Florence-2 computer vision model](https://huggingface.co/microsoft/Florence-2-large) to allow for object detection, grounding detection, classification(captioning), and segmentation.
 
 The Florence-2 model and inference will run locally, and therefore speed of inference is highly dependant on hardware.
 Cuda GPU support exists, but can run on CPU.
@@ -10,9 +10,9 @@ Metal GPU is not currently supported.
 
 ## Build and Run
 
-To use this module, follow these instructions to [add a module from the Viam Registry](https://docs.viam.com/registry/configure/#add-a-modular-resource-from-the-viam-registry) and select the `rdk:vision:mcvella:vision:grounding-dino` model from the [`mcvella:vision:florence-2` module](https://app.viam.com/module/rdk/mcvella:vision:florence-2).
+To use this module, follow these instructions to [add a module from the Viam Registry](https://docs.viam.com/registry/configure/#add-a-modular-resource-from-the-viam-registry) and select the `florence-2` model from the [`mcvella:vision:florence-2` module](https://app.viam.com/module/rdk/mcvella:vision:florence-2).
 
-## Configure your vision
+## Configure your vision service
 
 > [!NOTE]  
 > Before configuring your vision, you must [create a machine](https://docs.viam.com/manage/fleet/machines/#add-a-new-machine).
@@ -26,7 +26,6 @@ On the new component panel, copy and paste the following attribute template into
 
 ```json
 {
-  "model_id": "microsoft/Florence-2-large",
   "default_query": "house. car. zebra.",
   "caption_detail": "low"
 }
@@ -42,8 +41,9 @@ The following attributes are available for `rdk:vision:mcvella:vision:florence-2
 | Name | Type | Inclusion | Description |
 | ---- | ---- | --------- | ----------- |
 | `model_id` | string | Optional |  The HuggingFace model ID for the florence-2 model |
-| `default_query` | string | |  A list of grounding classes to look for in images. Each class must end in a period. Note that multi-word classes will often be detected as the base word, for example "man cooking" might detect "man". This is relevant only with detections, not classifications. If not set, all detected objects will be returned.|
-|`caption_detail`| string | | low, medium, or high (default low) For classification(captioning), this is the level of detail for the caption generated |
+| `default_query` | string | Optional |  A list of grounding classes to look for in images. Each class must end in a period. Note that multi-word classes will often be detected as the base word, for example "man cooking" might detect "man". This is relevant only with detections, not classifications. If not set, all detected objects will be returned.|
+|`caption_detail`| string | Optional | low, medium, or high (default low) For classification(captioning), this is the level of detail for the caption generated. Relevant for classifications only. |
+|`detection_as_segmentation`| boolean | Optional | Defaults to false.  If set to true, will return a single segmentation array as single 1x1 pixel detections of the class specified. To use this, you'll likely need to transform it into another segmentation mask format. |
 
 ### Example Configuration
 
@@ -85,4 +85,12 @@ For example:
 
 ``` python
 service.get_detections(image, extra={"detail": "high"})
+```
+
+If you want override the setting *detection_as_segmentation*, you can pass the extra parameter "segmentation" to get_detections.
+You must also either pass a *query* or have *default_query* set.
+For example:
+
+``` python
+service.get_detections(image, extra={"query": "person", "segmentation": true})
 ```

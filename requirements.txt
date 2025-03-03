@@ -1,4 +1,4 @@
-viam-sdk
+viam-sdk~=0.41.1
 transformers
 pillow
 torch
